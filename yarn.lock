@@ -5396,6 +5396,11 @@ react-is@^19.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.1.0.tgz#805bce321546b7e14c084989c77022351bbdd11b"
   integrity sha512-Oe56aUPnkHyyDxxkvqtd7KkdQP5uIUfHxd5XTb3wE9d/kRnZLmKbDB0GWk919tdQ+mxxPtG6EAs6RMT6i1qtHg==
 
+react-native-permissions@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.4.0.tgz#04427be8897625ba5af29c3f1dc81b7bec48fd12"
+  integrity sha512-D+YOIss+aKXi/VuZvm7hAq4WSugYyif58AIAWsT2/uLh9pz9ukOttGzPttjrv617J3bOEnt7C6cJBWoXmj/QRw==
+
 react-native-webview@^13.13.5:
   version "13.13.5"
   resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-13.13.5.tgz#4ef5f9310ddff5747f884a6655228ec9c7d52c73"
