@@ -1,6 +1,12 @@
 import {useCallback, useRef} from 'react';
 import {Platform, SafeAreaView, StyleSheet} from 'react-native';
+import AudioRecorderPlayer, {
+  AVEncodingOption,
+  OutputFormatAndroidType,
+} from 'react-native-audio-recorder-player';
 import WebView from 'react-native-webview';
+import Permissions from 'react-native-permissions';
+import RNFS from 'react-native-fs';
 
 const styles = StyleSheet.create({
   safearea: {
@@ -10,6 +16,7 @@ const styles = StyleSheet.create({
 
 const App = () => {
   const webViewRef = useRef<WebView>(null);
+  const audioRecorderPlayerRef = useRef(new AudioRecorderPlayer());
   const sendMessageToWebview = useCallback(
     ({type, data}: {type: string; data?: any}) => {
       const message = JSON.stringify({type, data});
@@ -19,20 +26,73 @@ const App = () => {
   );
 
   // 실제 녹음 함수
-  const startRecord = useCallback(() => {
+  const startRecord = useCallback(async () => {
+    if (Platform.OS === 'android') {
+      try {
+        // 퍼미션 여러개 요청. 여기선 하나만.
+        // 사용자가 수락하게 되면 grants에 퍼미션 결과가 들어옴.
+        const grants = await Permissions.requestMultiple([
+          Permissions.PERMISSIONS.ANDROID.RECORD_AUDIO,
+        ]);
+
+        console.log('write external storage', grants);
+
+        if (
+          // 퍼미션이 수락되었는지 확인.
+          grants[Permissions.PERMISSIONS.ANDROID.RECORD_AUDIO] ===
+          Permissions.RESULTS.GRANTED
+        ) {
+          console.log('Permissions granted');
+        } else {
+          console.log('All required permissions not granted');
+          return;
+        }
+      } catch (err) {
+        console.warn(err);
+        return;
+      }
+    }
+    /**
+     * startRecorder 함수는 녹음을 시작하고 녹음 파일의 경로를 반환합니다.
+     * param uri?: 녹음 파일 저장될 경로. undefined는 기본 경로로 저장
+     * param audioSets?: 녹음 파일 설정
+     * param meteringEnabled?: 미터링 사용 여부
+     *
+     * iOS에서는 이렇게 실행하고 나면 알아서 퍼미션 요청까지 진행함.
+     * 안드로이드에서는 마쉬멜로우 버전 이상부터는 런타임에 사용자에게 명시적으로 퍼미션 요청을 해줘야함.
+     */
+    await audioRecorderPlayerRef.current.startRecorder(undefined, {
+      // whisper는 포맷을 각각 이렇게 해줘야함.
+      AVFormatIDKeyIOS: AVEncodingOption.mp4,
+      OutputFormatAndroid: OutputFormatAndroidType.MPEG_4,
+    });
+
     sendMessageToWebview({type: 'onStartRecord'});
   }, [sendMessageToWebview]);
 
-  const stopRecord = useCallback(() => {
-    const data = {};
-    sendMessageToWebview({type: 'onStopRecord', data});
+  const stopRecord = useCallback(async () => {
+    // App에서 바이너리 녹음 파일을 Base64 문자열로 변환 -> webView.postMessage로 웹으로 전달. -> 웹에서 window.addEventListener('message', onMessage)로 받아서 처리.
+    const filePath = await audioRecorderPlayerRef.current.stopRecorder();
+    // 확장자
+    const ext = filePath.split('.').pop();
+    const base64audio = await RNFS.readFile(filePath, 'base64');
+    sendMessageToWebview({
+      type: 'onStopRecord',
+      data: {
+        audio: base64audio,
+        mimeType: 'audio/mp4',
+        ext,
+      },
+    });
   }, [sendMessageToWebview]);
 
-  const pauseRecord = useCallback(() => {
+  const pauseRecord = useCallback(async () => {
+    await audioRecorderPlayerRef.current.pauseRecorder();
     sendMessageToWebview({type: 'onPauseRecord'});
   }, [sendMessageToWebview]);
 
-  const resumeRecord = useCallback(() => {
+  const resumeRecord = useCallback(async () => {
+    await audioRecorderPlayerRef.current.resumeRecorder();
     sendMessageToWebview({type: 'onResumeRecord'});
   }, [sendMessageToWebview]);
 
