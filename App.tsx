@@ -14,7 +14,7 @@ import AudioRecorderPlayer, {
 import WebView from 'react-native-webview';
 import Permissions from 'react-native-permissions';
 import RNFS from 'react-native-fs';
-import {Camera} from 'react-native-vision-camera';
+import {Camera, useCameraDevice} from 'react-native-vision-camera';
 
 const styles = StyleSheet.create({
   safearea: {
@@ -56,8 +56,14 @@ const styles = StyleSheet.create({
 
 const App = () => {
   const [isCameraOn, setIsCameraOn] = useState(false);
+
   const webViewRef = useRef<WebView>(null);
   const audioRecorderPlayerRef = useRef(new AudioRecorderPlayer());
+  const cameraRef = useRef<Camera>(null);
+
+  // 후면 카메라를 쓰겠다는 의미
+  const device = useCameraDevice('back');
+
   const sendMessageToWebview = useCallback(
     ({type, data}: {type: string; data?: any}) => {
       const message = JSON.stringify({type, data});
@@ -145,9 +151,25 @@ const App = () => {
     }
   }, []);
 
-  const closeCamera = useCallback(() => {}, []);
+  const closeCamera = useCallback(() => {
+    setIsCameraOn(false);
+  }, []);
 
-  const onPressPhotoButton = useCallback(() => {}, []);
+  const onPressPhotoButton = useCallback(async () => {
+    const file = await cameraRef.current?.takePhoto({
+      flash: 'off',
+    });
+
+    // base64로 변환 -> webView.postMessage로 웹으로 전달. -> 웹에서 window.addEventListener('message', onMessage)로 받아서 처리.
+    if (file) {
+      const base64Image = await RNFS.readFile(file.path, 'base64');
+      const imageDataUrl = `data:image/jpeg;base64,${base64Image}`;
+      sendMessageToWebview({
+        type: 'onTakePhoto',
+        data: imageDataUrl,
+      });
+    }
+  }, [sendMessageToWebview]);
 
   return (
     <SafeAreaView style={styles.safearea}>
@@ -180,17 +202,29 @@ const App = () => {
         }}
         webviewDebuggingEnabled
       />
-      <View style={styles.camera}>
-        <TouchableOpacity
-          style={styles.cameraCloseButton}
-          onPress={closeCamera}>
-          <Text style={styles.cameraCloseText}>CLOSE</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.cameraPhotoButton}
-          onPress={onPressPhotoButton}
-        />
-      </View>
+      {!isCameraOn && !!device && (
+        <View style={styles.camera}>
+          {/* 디바이스는 후면 카메라 쓸거고, 사진만 찍을거고, 카메라 켜져 있을거고, 사진 퀄리티는 용량이 좀 작게, 스타일은 카메라 컴포넌트 꽉 채워지게 */}
+          <Camera
+            ref={cameraRef}
+            device={device}
+            photo={true}
+            video={false}
+            isActive={true}
+            photoQualityBalance="speed"
+            style={StyleSheet.absoluteFill}
+          />
+          <TouchableOpacity
+            style={styles.cameraCloseButton}
+            onPress={closeCamera}>
+            <Text style={styles.cameraCloseText}>CLOSE</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cameraPhotoButton}
+            onPress={onPressPhotoButton}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
