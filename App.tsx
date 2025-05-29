@@ -1,5 +1,12 @@
-import {useCallback, useRef} from 'react';
-import {Platform, SafeAreaView, StyleSheet} from 'react-native';
+import {useCallback, useRef, useState} from 'react';
+import {
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import AudioRecorderPlayer, {
   AVEncodingOption,
   OutputFormatAndroidType,
@@ -7,14 +14,48 @@ import AudioRecorderPlayer, {
 import WebView from 'react-native-webview';
 import Permissions from 'react-native-permissions';
 import RNFS from 'react-native-fs';
+import {Camera} from 'react-native-vision-camera';
 
 const styles = StyleSheet.create({
   safearea: {
     flex: 1,
   },
+  camera: {
+    backgroundColor: 'black',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  cameraCloseButton: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+  },
+  cameraCloseText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  cameraPhotoButton: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 80 / 2,
+    bottom: 60,
+    backgroundColor: 'white',
+    alignSelf: 'center',
+  },
+  versionText: {
+    alignSelf: 'flex-end',
+    marginRight: 10,
+    backgroundColor: 'white',
+    color: 'black',
+  },
 });
 
 const App = () => {
+  const [isCameraOn, setIsCameraOn] = useState(false);
   const webViewRef = useRef<WebView>(null);
   const audioRecorderPlayerRef = useRef(new AudioRecorderPlayer());
   const sendMessageToWebview = useCallback(
@@ -96,6 +137,18 @@ const App = () => {
     sendMessageToWebview({type: 'onResumeRecord'});
   }, [sendMessageToWebview]);
 
+  const openCamera = useCallback(async () => {
+    // 권한 요청
+    const permission = await Camera.requestCameraPermission();
+    if (permission === 'granted') {
+      setIsCameraOn(true);
+    }
+  }, []);
+
+  const closeCamera = useCallback(() => {}, []);
+
+  const onPressPhotoButton = useCallback(() => {}, []);
+
   return (
     <SafeAreaView style={styles.safearea}>
       <WebView
@@ -121,10 +174,23 @@ const App = () => {
             pauseRecord();
           } else if (type === 'resume-record') {
             resumeRecord();
+          } else if (type === 'open-camera') {
+            openCamera();
           }
         }}
         webviewDebuggingEnabled
       />
+      <View style={styles.camera}>
+        <TouchableOpacity
+          style={styles.cameraCloseButton}
+          onPress={closeCamera}>
+          <Text style={styles.cameraCloseText}>CLOSE</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.cameraPhotoButton}
+          onPress={onPressPhotoButton}
+        />
+      </View>
     </SafeAreaView>
   );
 };
