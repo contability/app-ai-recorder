@@ -19,6 +19,7 @@ import {Camera, useCameraDevice} from 'react-native-vision-camera';
 const styles = StyleSheet.create({
   safearea: {
     flex: 1,
+    paddingTop: 50,
   },
   camera: {
     backgroundColor: 'black',
@@ -147,6 +148,7 @@ const App = () => {
     // 권한 요청
     const permission = await Camera.requestCameraPermission();
     if (permission === 'granted') {
+      console.log('🚀 ~ openCamera ~ permission:', permission === 'granted');
       setIsCameraOn(true);
     }
   }, []);
@@ -202,7 +204,7 @@ const App = () => {
         }}
         webviewDebuggingEnabled
       />
-      {!isCameraOn && !!device && (
+      {isCameraOn && !!device && (
         <View style={styles.camera}>
           {/* 디바이스는 후면 카메라 쓸거고, 사진만 찍을거고, 카메라 켜져 있을거고, 사진 퀄리티는 용량이 좀 작게, 스타일은 카메라 컴포넌트 꽉 채워지게 */}
           <Camera
