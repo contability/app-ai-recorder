@@ -1,6 +1,7 @@
-package com.appairecorder
+package com.contability.appairecorder
 
 import android.app.Application
+import com.contability.appairecorder.BuildConfig
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost

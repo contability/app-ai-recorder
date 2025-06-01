@@ -1,4 +1,4 @@
-package com.appairecorder
+package com.contability.appairecorder
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
