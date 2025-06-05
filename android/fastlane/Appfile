@@ -1,0 +1,2 @@
+json_key_file("./airecorder-462006-d61802bea9f0.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
+package_name("com.contability.appairecorder") # e.g. com.krausefx.app
