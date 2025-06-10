@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-firebase/app": "^22.2.1",
+    "@react-native-firebase/messaging": "^22.2.1",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-audio-recorder-player": "^3.6.12",
