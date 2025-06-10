@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "958946093989",
+    "project_id": "appairecorder",
+    "storage_bucket": "appairecorder.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:958946093989:android:2b1f244a6c0f759638964c",
+        "android_client_info": {
+          "package_name": "com.contability.appairecorder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKvqItCLDBgbNTM6PeuArE0741ENjQ3As"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
