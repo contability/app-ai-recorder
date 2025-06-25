@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Platform,
   SafeAreaView,
@@ -16,6 +16,8 @@ import Permissions from 'react-native-permissions';
 import RNFS from 'react-native-fs';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import usePushNotification from './src/usePushNotification';
+import axios from 'axios';
 
 const styles = StyleSheet.create({
   safearea: {
@@ -59,6 +61,7 @@ const styles = StyleSheet.create({
 const DATABASE_KEY = 'database';
 
 const App = () => {
+  const {fcmToken} = usePushNotification();
   const [isCameraOn, setIsCameraOn] = useState(false);
 
   const webViewRef = useRef<WebView>(null);
@@ -185,6 +188,17 @@ const App = () => {
   const saveDatabase = useCallback(async (database: any) => {
     await AsyncStorage.setItem(DATABASE_KEY, JSON.stringify(database));
   }, []);
+
+  useEffect(() => {
+    if (fcmToken !== null) {
+      axios.post(
+        'http://127.0.0.1:5001/appairecorder/us-central1/updateToken',
+        {
+          token: fcmToken,
+        },
+      );
+    }
+  }, [fcmToken]);
 
   return (
     <SafeAreaView style={styles.safearea}>

@@ -13,6 +13,7 @@
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-firebase/app": "^22.2.1",
     "@react-native-firebase/messaging": "^22.2.1",
+    "axios": "^1.10.0",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-audio-recorder-player": "^3.6.12",
@@ -43,5 +44,6 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
 }
